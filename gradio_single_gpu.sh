@@ -10,8 +10,9 @@ CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES /primus_xpfs_workspace_T04/huangshiji
     --nproc_per_node=1 \
     --master_port=29501 \
     minimal_inference/gradio_app.py \
+    --ulysses_size 1 \
     --task s2v-14B \
-    --size "720*400" \
+    --size "704*384" \
     --base_seed 420 \
     --training_config liveavatar/configs/s2v_causal_sft.yaml \
     --offload_model True \
@@ -19,10 +20,10 @@ CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES /primus_xpfs_workspace_T04/huangshiji
     --infer_frames 48 \
     --load_lora \
     --lora_path "/primus_xpfs_workspace_T04/huangyubo/Causvid/checkpoints/1005_s2v_causal_sft_1_4_0/ckpt/merged_model_step_step_25000/only_lora.pt" \
-    --lora_path_dmd "/primus_xpfs_workspace_T04/huangyubo/LongLive/1027_s2v_selfforcing_1_16_0/ckpt_copy/step_1500_generator_lora.pt" \
+    --lora_path_dmd "/primus_xpfs_workspace_T04/huangyubo/LongLive/1027_s2v_selfforcing_1_13_2/ckptcopy/step_2500_generator_lora.pt" \
     --sample_steps 4 \
     --sample_guide_scale 0 \
-    --num_clip 10 \
+    --num_clip 100 \
     --num_gpus_dit 1 \
     --sample_solver euler \
     --single_gpu \

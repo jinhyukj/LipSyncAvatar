@@ -47,8 +47,8 @@ import torch.distributed as dist
 # wan 1.3B model has a weird channel / head configurations and require max-autotune to work with flexattention
 # see https://github.com/pytorch/pytorch/issues/133254
 # change to reduce-overhead for better distributed training performance
-flex_attention = torch.compile(
-    flex_attention, dynamic=False, mode="max-autotune")
+# flex_attention = torch.compile(
+#     flex_attention, dynamic=False, mode="max-autotune")
 
 
 def sp_attn_forward_s2v(self,

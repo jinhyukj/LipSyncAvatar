@@ -636,8 +636,8 @@ class WanS2V:
                 layer_cache["cond_v"] = self.shared_cond_cache[layer_idx]["cond_v"]
                 layer_cache["cond_end"] = self.shared_cond_cache[layer_idx]["cond_end"]
             else:
-                layer_cache["cond_k"] = torch.zeros([batch_size, 3000, 40, 128], dtype=dtype, device=device)
-                layer_cache["cond_v"] = torch.zeros([batch_size, 3000, 40, 128], dtype=dtype, device=device)
+                layer_cache["cond_k"] = torch.zeros([batch_size, 2800, 40, 128], dtype=dtype, device=device)
+                layer_cache["cond_v"] = torch.zeros([batch_size, 2800, 40, 128], dtype=dtype, device=device)
                 layer_cache["cond_end"] = torch.tensor([0], dtype=torch.long, device=device)
             
             kv_cache1.append(layer_cache)
@@ -781,6 +781,7 @@ class WanS2V:
         self.audio_encoder.model.to(device=self.device, dtype=self.param_dtype)
         self.audio_encoder.model.requires_grad_(False)
         self.audio_encoder.model.eval()
+        self.vae.model.to(self.device)
         
         if '+' in audio_path:
             audio_paths = audio_path.split('+')
@@ -987,8 +988,8 @@ class WanS2V:
                         cond_device = f"cuda:{0}" if self.single_gpu else f"cuda:{0}"
                         for _ in range(self.noise_model.num_layers):
                             self.shared_cond_cache.append({
-                                "cond_k": torch.zeros([1, 3000, 40, 128], dtype=self.param_dtype, device=cond_device),
-                                "cond_v": torch.zeros([1, 3000, 40, 128], dtype=self.param_dtype, device=cond_device),
+                                "cond_k": torch.zeros([1, 2800, 40, 128], dtype=self.param_dtype, device=cond_device),
+                                "cond_v": torch.zeros([1, 2800, 40, 128], dtype=self.param_dtype, device=cond_device),
                                 "cond_end": torch.tensor([0], dtype=torch.long, device=cond_device)
                             })
                     else:
@@ -1158,6 +1159,7 @@ class WanS2V:
                     clip_outputs.append(clip_output.detach().cpu())
 
         #-------------------------------------- Step 3: full-video postprocess (deferred VAE decode for r>=1)--------------------------------------
+        print(f"complete full-sequence generation")
         if clip_outputs:
             if offload_model:
                 print(
@@ -1200,13 +1202,16 @@ class WanS2V:
         del clip_noise, clip_latents, clip_output, block_latents
         self._sampler_timesteps = None
         self._sampler_sigmas = None
+        self.kv_cache1 = None
+        self.shared_cond_cache = None
+        self.crossattn_cache = None
         # del sample_scheduler
         if offload_model:
             self.vae.model.cpu()
             self.noise_model.to(self.device)
             gc.collect()
             torch.cuda.synchronize()
-            
+            torch.cuda.empty_cache()
 
         return videos[0] if self.rank == 0 else None, dataset_info
 

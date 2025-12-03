@@ -33,34 +33,33 @@ global_save_rank = 0
 EXAMPLE_PROMPT = {
     "s2v-14B": {
         "prompt":
-            "A close-up, black and white video of a 60-70 year old male digital human, resembling Albert Einstein. He has a surprised and curious expression with raised eyebrows and slightly parted lips, as if about to speak. He wears a dark suit, white shirt, and dark tie. In the dimly lit background to his right, a blackboard with a chalk circle and symbols like 'L' and 'K' is visible. The scene has a thoughtful, intelligent, and slightly whimsical atmosphere, rendered in a classic black and white film style.",
+            "A scene in which the anchorwoman is interacting with the audience, with a clean interior in the background.",
         "image":
-            "examples/i2v_input.JPG",
+            "examples/anchor.jpg",
         "audio":
-            "examples/talk.wav",
+            "examples/fashion_blogger.wav",
     },
 }
 
 # Example images for gallery
 EXAMPLE_IMAGES = [
-    ("examples/demo/case1.jpg", "Einstein"),
-    ("examples/Einstein.png", "Einstein 2"),
-    ("examples/ani2.png", "Anime Girl 1"),
-    ("examples/ani3.png", "Anime Girl 2"),
-    ("examples/ani4.png", "Anime Girl 3"),
-    ("examples/whisper.png", "Whisper"),
-    ("examples/pose.png", "Pose"),
-    ("examples/quark.png", "Quark"),
+    ("examples/anchor.jpg", "Anchor"),
+    ("examples/fashion_blogger.jpg", "Fashion Blogger"),
+    ("examples/kitchen_grandmother.jpg", "Kitchen Grandmother"),
+    ("examples/music_producer.jpg", "Music Producer"),
+    ("examples/dwarven_blacksmith.jpg", "Dwarven Blacksmith"),
+    ("examples/cyclops_baker.jpg", "Cyclops Baker"),
+    ("examples/livestream_1.png", "Livestream 1"),
+    ("examples/livestream_2.jpg", "Livestream 2"),
 ]
 
 # Example audios
 EXAMPLE_AUDIOS = [
-    ("examples/demo/case1_all.wav", "Case 1 Audio"),
-    ("examples/talk.wav", "Talk"),
-    ("examples/oldman.wav", "Old Man"),
-    ("examples/ani2.mp3", "Anime Audio 1"),
-    ("examples/ani3.mp3", "Anime Audio 2"),
-    ("examples/ani4.mp3", "Anime Audio 3"),
+    ("examples/fashion_blogger.wav", "Fashion Blogger Audio"),
+    ("examples/kitchen_grandmother.wav", "Kitchen Grandmother Audio"),
+    ("examples/music_producer.wav", "Music Producer Audio"),
+    ("examples/dwarven_blacksmith.wav", "Dwarven Blacksmith Audio"),
+    ("examples/cyclops_baker.wav", "Cyclops Baker Audio"),
 ]
 
 
@@ -68,6 +67,12 @@ def _validate_args(args):
     """Validate command line arguments"""
     assert args.ckpt_dir is not None, "Please specify the checkpoint directory."
     assert args.task in WAN_CONFIGS, f"Unsupport task: {args.task}"
+
+    if args.size is None:
+        if args.single_gpu or args.num_gpus_dit == 1:
+            args.size = "704*384"
+        else:
+            args.size = "720*400"
 
     cfg = WAN_CONFIGS[args.task]
 
@@ -100,7 +105,7 @@ def _parse_args():
     parser.add_argument(
         "--size",
         type=str,
-        default="720*400",
+        default=None,
         choices=list(SIZE_CONFIGS.keys()),
         help="The area (width*height) of the generated video.")
     parser.add_argument(
@@ -303,15 +308,12 @@ def initialize_pipeline(args, training_settings):
         logging.info(f"offload_model is not specified, set to {args.offload_model}.")
     
     torch.cuda.set_device(local_rank)
-    
-    # Initialize distributed process group if multi-GPU
+    dist.init_process_group(
+        backend="nccl",
+        init_method="env://",
+        rank=rank,
+        world_size=world_size)
     if world_size > 1:
-        dist.init_process_group(
-            backend="nccl",
-            init_method="env://",
-            rank=rank,
-            world_size=world_size)
-        
         assert world_size >= 5, "At least 5 GPUs are supported for distributed inference."
         assert args.num_gpus_dit == 4, "Only 4 GPUs are supported for distributed inference."
         assert args.enable_vae_parallel is True, "VAE parallel is required for distributed inference."
@@ -677,26 +679,26 @@ def create_gradio_interface():
         gr.Examples(
             examples=[
                 [
-                    "A close-up, black and white video of a 60-70 year old male digital human, resembling Albert Einstein. He has a surprised and curious expression with raised eyebrows and slightly parted lips, as if about to speak.",
-                    "examples/demo/case1.jpg",
-                    "examples/demo/case1_all.wav",
-                    10,
+                    "A young boy with curly brown hair and a white polo shirt, wearing a backpack, standing outdoors in a sunny park. He is speaking animatedly with expressive hand gestures, his hands clearly visible and moving naturally. His facial expressions are lively and engaging, conveying enthusiasm and curiosity. The camera captures him from the chest up with a steady, clear shot, natural lighting and a soft green background. Realistic 3D animation style, lifelike motion and expression.",
+                    "examples/boy.jpg",
+                    "examples/boy.wav",
+                    10000,
                     4,
                     0.0,
                     48,
-                    "720*400",
+                    "704*384",
                     420,
                     "euler"
                 ],
                 [
-                    "A vibrant 3D anime style avatar of a young blonde woman with high pigtails, wearing a black Gothic Lolita dress, speaking playfully to the camera with expressive gestures.",
-                    "examples/ani4.png",
-                    "examples/ani4.mp3",
+                    "A stout, cheerful dwarf with a magnificent braided beard adorned with metal rings, wearing a heavy leather apron. He's standing in his fiery, cluttered forge, laughing heartily as he explains the mastery of his craft, holding up a glowing hammer. Style of Blizzard Entertainment cinematics (like World of Warcraft), warm, dynamic lighting from the forge.",
+                    "examples/dwarven_blacksmith.jpg",
+                    "examples/dwarven_blacksmith.wav",
                     10,
                     4,
                     0.0,
                     48,
-                    "720*400",
+                    "704*384",
                     420,
                     "euler"
                 ],

@@ -1,8 +1,0 @@
-{
-  "boy_2": {
-    "prompt": "A young boy with short black hair and wide, expressive eyes, wearing a striped t-shirt, standing in a colorful playground with slides and play structures in the background. He is speaking with an animated and surprised expression, mouth slightly open, as if reacting to something astonishing. Natural daylight, vibrant colors, realistic 3D animation style, clear facial details, and smooth movements.",
-    "image": "/primus_xpfs_workspace_T04/fangtai/WanAvatar/generate_bench/genbench-v2/1_longvideo_images/boy_2/boy_2.jpg",
-    "audio": "/primus_xpfs_workspace_T04/fangtai/WanAvatar/generate_bench/genbench-v2/1_longvideo_images/boy_2/boy_2.wav",
-    "num_clip": 100000
-  }
-}
