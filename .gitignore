@@ -182,7 +182,7 @@ cython_debug/
 
 diffusers
 
-*/*.png
+# */*.png
 
 tests/data
 
@@ -199,8 +199,8 @@ wandb
 ignored_cache
 outputs
 
-*.jpg
-*.png
+# *.jpg
+# *.png
 
 fsdp_configs
 grounded_dino_ckpts
