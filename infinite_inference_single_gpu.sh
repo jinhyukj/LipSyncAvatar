@@ -1,7 +1,7 @@
 CUDA_VISIBLE_DEVICES=1
 export NCCL_DEBUG=WARN
 export NCCL_DEBUG_SUBSYS=OFF
-CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES torchrun --nproc_per_node=1 --master_port=29101  minimal_inference/s2v_streaming_interact.py \
+CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES torchrun --nproc_per_node=1 --master_port=29102  minimal_inference/s2v_streaming_interact.py \
      --ulysses_size 1 \
      --task s2v-14B \
      --size "704*384" \
