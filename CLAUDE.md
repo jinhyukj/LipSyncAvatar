@@ -71,7 +71,7 @@ Multi-GPU requires exactly 5 GPUs: 4 for DiT pipeline parallelism + 1 for VAE pa
 Audio (wav) ──→ Audio Encoder (conformer) ──→ Audio embeddings ─┐
 Text prompt ──→ T5 Text Encoder ──→ Text embeddings ────────────┤
 Reference image ──→ VAE Encoder ──→ Appearance features ────────┤
-                                                                 ▼
+                                                                 1▼
                                         CausalWanModel_S2V (14B DiT)
                                         (4-step flow matching diffusion)
                                                                  │

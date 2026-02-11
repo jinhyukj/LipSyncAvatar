@@ -12,9 +12,13 @@ from diffusers.utils import is_torch_version, logging
 from einops import rearrange
 
 try:
-    from flash_attn import flash_attn_func, flash_attn_qkvpacked_func
+    from flash_attn_interface import flash_attn_func, flash_attn_qkvpacked_func
 except ImportError:
-    flash_attn_func = None
+    try:
+        from flash_attn import flash_attn_func, flash_attn_qkvpacked_func
+    except ImportError:
+        flash_attn_func = None
+        flash_attn_qkvpacked_func = None
 
 MEMORY_LAYOUT = {
     "flash": (
